@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yonyou.dao.ConfigEntityDao">
+
+    <insert id="saveFatherConfigEntity" keyProperty="id" parameterType="com.yonyou.entity.ConfigEntity"
+            useGeneratedKeys="true">
+        INSERT  INTO  excel_config
+        (id,corpid,type,entity_name,entity_url)
+        VALUES (#{id,jdbcType=INTEGER},#{corpid,jdbcType=VARCHAR},#{type,jdbcType=INTEGER},#{entity_name,jdbcType=VARCHAR},#{entity_url,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="saveSonConfigEntity">
+        INSERT INTO excel_config_b
+        (pid,level,orderid,btmc,stmc,isnull)
+        VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+            (#{item.pid},#{item.level},#{item.orderid},#{item.btmc},#{item.stmc},#{item.isnull})
+        </foreach>
+    </insert>
+
+
+    <select id="selectConfigEntityList" resultType="com.yonyou.entity.ConfigEntity">
+          SELECT
+          ec.corpid AS  corpid,
+          ec.type AS type ,
+          ec.entity_name AS  entity_name,
+          ec.entity_url AS entity_url,
+          ecb.id AS id,
+          ecb.pid AS pid,
+          ecb.orderid AS orderid,
+          ecb.btmc AS btmc,
+          ecb.stmc AS stmc,
+          ecb.level AS level,
+          ecb.isnull AS isnull
+          FROM excel_config ec
+          RIGHT JOIN excel_config_b ecb ON ec.id = ecb.pid
+          WHERE ec.corpid = #{corpId} AND ec.type = #{type}
+    </select>
+
+    <delete id="deleteConfigEntityById" parameterType="java.lang.Integer">
+        DELETE FROM excel_config_b WHERE excel_config_b.pid = #{id};
+         DELETE FROM excel_config WHERE  excel_config.id = #{id};
+    </delete>
+
+    <select id="selectIdByCorpidAndType" resultType="java.lang.Integer">
+        SELECT id FROM excel_config WHERE corpid = #{corpid} AND type = #{type}
+    </select>
+
+</mapper>
